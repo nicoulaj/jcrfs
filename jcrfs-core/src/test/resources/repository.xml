@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!--
+  ~ jcrfs, a filesystem in userspace for Java Content Repositories.
+  ~ Copyright (C) 2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE Repository
+          PUBLIC "-//The Apache Software Foundation//DTD Jackrabbit 2.0//EN"
+          "http://jackrabbit.apache.org/dtd/repository-2.0.dtd">
+
+<Repository>
+    <!--
+        virtual file system where the repository stores global state
+        (e.g. registered namespaces, custom node types, etc.)
+    -->
+    <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem">
+        <param name="path" value="${rep.home}/repository"/>
+    </FileSystem>
+    <!--
+        data store configuration
+    -->
+    <DataStore class="org.apache.jackrabbit.core.data.FileDataStore"/>
+
+    <!--
+        security configuration
+    -->
+    <Security appName="Jackrabbit">
+        <!--
+            security manager:
+            class: FQN of class implementing the JackrabbitSecurityManager interface
+        -->
+        <SecurityManager class="org.apache.jackrabbit.core.security.simple.SimpleSecurityManager" workspaceName="security">
+            <!--
+            workspace access:
+            class: FQN of class implementing the WorkspaceAccessManager interface
+            -->
+            <!-- <WorkspaceAccessManager class="..."/> -->
+            <!-- <param name="config" value="${rep.home}/security.xml"/> -->
+        </SecurityManager>
+
+        <!--
+            access manager:
+            class: FQN of class implementing the AccessManager interface
+        -->
+        <AccessManager class="org.apache.jackrabbit.core.security.simple.SimpleAccessManager">
+            <!-- <param name="config" value="${rep.home}/access.xml"/> -->
+        </AccessManager>
+
+        <LoginModule class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
+           <!-- 
+              anonymous user name ('anonymous' is the default value)
+            -->
+           <param name="anonymousId" value="anonymous"/>
+           <!--
+              administrator user id (default value if param is missing is 'admin')
+            -->
+           <param name="adminId" value="admin"/>
+        </LoginModule>
+    </Security>
+
+    <!--
+        location of workspaces root directory and name of default workspace
+    -->
+    <Workspaces rootPath="${rep.home}/workspaces" defaultWorkspace="default"/>
+    <!--
+        workspace configuration template:
+        used to create the initial workspace if there's no workspace yet
+    -->
+    <Workspace name="${wsp.name}">
+        <!--
+            virtual file system of the workspace:
+            class: FQN of class implementing the FileSystem interface
+        -->
+        <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+            <param name="path" value="${wsp.home}"/>
+        </FileSystem>
+        <!--
+            persistence manager of the workspace:
+            class: FQN of class implementing the PersistenceManager interface
+        -->
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemPersistenceManager">
+            <param name="persistent" value="false"/>
+        </PersistenceManager>
+
+        <!--
+            Search index and the file system it uses.
+            class: FQN of class implementing the QueryHandler interface
+        -->
+        <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+            <param name="path" value="${wsp.home}/index"/>
+            <param name="supportHighlighting" value="true"/>
+        </SearchIndex>
+    </Workspace>
+
+    <!--
+        Configures the versioning
+    -->
+    <Versioning rootPath="${rep.home}/version">
+        <!--
+            Configures the filesystem to use for versioning for the respective
+            persistence manager
+        -->
+        <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
+            <param name="path" value="${rep.home}/version" />
+        </FileSystem>
+
+        <!--
+            Configures the persistence manager to be used for persisting version state.
+            Please note that the current versioning implementation is based on
+            a 'normal' persistence manager, but this could change in future
+            implementations.
+        -->
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemPersistenceManager">
+            <param name="persistent" value="false"/>
+        </PersistenceManager>
+    </Versioning>
+
+    <!--
+        Search index for content that is shared repository wide
+        (/jcr:system tree, contains mainly versions)
+    -->
+    <SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+        <param name="path" value="${rep.home}/repository/index"/>
+        <param name="supportHighlighting" value="true"/>
+    </SearchIndex>
+</Repository>

@@ -1,0 +1,54 @@
+#!/bin/sh
+# jcrfs, a filesystem in userspace for Java Content Repositories.
+# Copyright (C) 2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Resolve script location, following symlinks
+if [ -z $JCRFS_HOME ]; then
+  PRG=$0
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG="`dirname $PRG`/$link"
+    fi
+  done
+  export JCRFS_HOME=$(dirname `dirname $PRG`)
+fi
+
+# Build classpath
+if [ -z $JCRFS_CLASSPATH ]; then
+  JCRFS_CLASSPATH=""
+  for jar in $JCRFS_HOME/lib/*.jar; do
+    JCRFS_CLASSPATH="$jar:$JCRFS_CLASSPATH"
+  done
+  export JCRFS_CLASSPATH
+fi
+
+# Build library path
+if [ -z $LD_LIBRARY_PATH ]; then
+  # FIXME hardcoded
+  export LD_LIBRARY_PATH=/usr/lib:${JAVA_HOME}/jre/lib/amd64/server
+fi
+
+# Launch Java filesystem
+# FIXME Check command is available
+javafs $* \
+       -f \
+       -o class=net/nicoulaj/jcrfs/JcrFileSystem \
+       -o "jvm=-Djava.class.path=$JCRFS_CLASSPATH" \
+       -o "jvm=-Dlogback.configurationFile=$JCRFS_HOME/conf/logback.xml"
