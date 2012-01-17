@@ -15,3 +15,6 @@ target/
 # Maven release plugin files
 pom.xml.*
 release.properties
+
+# Local stuff
+test.sh

@@ -1,0 +1,4 @@
+jcrfs, a filesystem in userspace (FUSE) for Java Content Repositories (JCR).
+============================================================================
+
+See usage instructions at http://github.com/nicoulaj/jcrfs.

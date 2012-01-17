@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ jcrfs, a filesystem in userspace for Java Content Repositories.
-  ~ Copyright (C) 2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
+  ~ jcrfs, a filesystem in userspace (FUSE) for Java Content Repositories (JCR).
+  ~ Copyright (C) 2011-2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -23,9 +23,7 @@
     <id>full</id>
 
     <formats>
-        <format>dir</format>
-        <!--<format>zip</format>-->
-        <!--<format>tar.gz</format>-->
+        <format>tar.gz</format>
     </formats>
 
     <baseDirectory>jcrfs-${project.version}</baseDirectory>

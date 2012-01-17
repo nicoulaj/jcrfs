@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ jcrfs, a filesystem in userspace for Java Content Repositories.
-  ~ Copyright (C) 2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
+  ~ jcrfs, a filesystem in userspace (FUSE) for Java Content Repositories (JCR).
+  ~ Copyright (C) 2011-2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@
     </parent>
 
     <groupId>net.ju-n.jcrfs</groupId>
-    <artifactId>jcrfs-parent</artifactId>
+    <artifactId>jcrfs</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>jcrfs</name>
-    <description>A filesystem in userspace for Java Content Repositories.</description>
-    <url>http://nicoulaj.github.com/jcrfs</url>
+    <description>A filesystem in userspace (FUSE) for Java Content Repositories (JCR).</description>
+    <url>http://github.com/nicoulaj/jcrfs</url>
     <inceptionYear>2011</inceptionYear>
 
     <licenses>
@@ -62,93 +62,76 @@
         <logback.version>1.0.0</logback.version>
     </properties>
 
-    <modules>
-        <module>jcrfs-core</module>
-        <module>jcrfs-dist</module>
-    </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>jcrfs-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fuse4j</groupId>
-                <artifactId>fuse4j-core</artifactId>
-                <version>${fuse4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.jcr</groupId>
-                <artifactId>jcr</artifactId>
-                <version>${jcr-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>jackrabbit-jcr-rmi</artifactId>
-                <version>${jackrabbit.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <!-- TODO Remove -->
     <dependencies>
         <dependency>
             <groupId>fuse4j</groupId>
-            <artifactId>fuse4j-fakefs</artifactId>
+            <artifactId>fuse4j-core</artifactId>
             <version>${fuse4j.version}</version>
-            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>fuse4j</groupId>
-            <artifactId>fuse4j-zipfs</artifactId>
-            <version>${fuse4j.version}</version>
-            <scope>compile</scope>
+            <groupId>javax.jcr</groupId>
+            <artifactId>jcr</artifactId>
+            <version>${jcr-api.version}</version>
         </dependency>
         <dependency>
-            <groupId>fuse4j</groupId>
-            <artifactId>fuse4j-staticfs</artifactId>
-            <version>${fuse4j.version}</version>
-            <scope>compile</scope>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-jcr-rmi</artifactId>
+            <version>${jackrabbit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>runtime</scope>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.5</source>
-                        <target>1.5</target>
-                        <optimize>true</optimize>
-                        <showWarnings>true</showWarnings>
-                        <showDeprecation>true</showDeprecation>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package-assemblies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorSourceDirectory>${project.basedir}/src/assemble/descriptors</descriptorSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

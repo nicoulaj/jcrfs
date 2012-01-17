@@ -1,6 +1,6 @@
 /*
- * jcrfs, a filesystem in userspace for Java Content Repositories.
- * Copyright (C) 2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
+ * jcrfs, a filesystem in userspace (FUSE) for Java Content Repositories (JCR).
+ * Copyright (C) 2011-2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

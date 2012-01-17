@@ -1,6 +1,6 @@
 /*
- * jcrfs, a filesystem in userspace for Java Content Repositories.
- * Copyright (C) 2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
+ * jcrfs, a filesystem in userspace (FUSE) for Java Content Repositories (JCR).
+ * Copyright (C) 2011-2012 Julien Nicoulaud <julien.nicoulaud@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,15 +31,22 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 /**
- * TODO Doc.
+ * Filesystem implementation that connects to a remote Java Content Repository.
  * <p/>
  * TODO Implement {@link fuse.XattrSupport}.
  *
  * @author Julien Nicoulaud <julien.nicoulaud@gmail.com>
  */
+@SuppressWarnings({"OctalInteger"})
 public class JcrFileSystem implements Filesystem3, LifecycleSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcrFileSystem.class);
+
+    public static final String OPTION_USER = "user";
+
+    public static final String OPTION_PASS = "pass";
+
+    public static final String OPTION_WORKSPACE = "workspace";
 
     private static final int NAME_LENGTH = 1024;
 
@@ -49,22 +56,28 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
 
     protected Session session;
 
-    public int init() {
-        LOGGER.info("Initializing JCR filesystem");
+    public JcrFileSystem(String[] args) {
+        final JcrfsArgumentParser argsParser = new JcrfsArgumentParser(args);
+        LOGGER.debug("Mount point: {}", argsParser.getMountPoint());
+        LOGGER.debug("Source: {}", argsParser.getSource());
+        LOGGER.debug("Foreground: {}", argsParser.isForeground());
+        LOGGER.debug("Options: {}", argsParser.getOptions());
+
         try {
-            final Repository repository = new URLRemoteRepository("http://localhost:8080/rmi");
-            final Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
-            session = repository.login(credentials);
+            final Repository repository = new URLRemoteRepository(argsParser.getSource());
+            final Credentials credentials = new SimpleCredentials(argsParser.getOption(OPTION_USER), argsParser.getOption(OPTION_PASS).toCharArray());
+            session = repository.login(credentials, argsParser.getOption(OPTION_WORKSPACE));
         } catch (MalformedURLException e) {
             LOGGER.error("Invalid JCR repository URL", e);
-            return Errno.ENOTCONN;
         } catch (LoginException e) {
             LOGGER.error("Login failed", e);
-            return Errno.ECONNREFUSED;
         } catch (RepositoryException e) {
             LOGGER.error("Repository error occured", e);
-            return Errno.EREMOTEIO;
         }
+    }
+
+    public int init() {
+        LOGGER.info("Initializing JCR filesystem");
         return 0;
     }
 
@@ -75,12 +88,7 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
 
     public int getattr(String path, FuseGetattrSetter getattrSetter) throws FuseException {
         final Item item;
-        try {
-            item = lookup(path);
-        } catch (ErrnoException e) {
-            LOGGER.warn(e.getMessage());
-            return e.getErrno();
-        }
+        item = lookup(path);
 
         int time = (int) (System.currentTimeMillis() / 1000L);
         try {
@@ -128,12 +136,7 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
 
     public int getdir(String path, FuseDirFiller dirFiller) throws FuseException {
         final Item item;
-        try {
-            item = lookup(path);
-        } catch (ErrnoException e) {
-            LOGGER.warn(e.getMessage());
-            return e.getErrno();
-        }
+        item = lookup(path);
 
         try {
             if (item instanceof Node) {
@@ -211,12 +214,7 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
 
     public int open(String path, int flags, FuseOpenSetter openSetter) throws FuseException {
         final Item item;
-        try {
-            item = lookup(path);
-        } catch (ErrnoException e) {
-            LOGGER.warn(e.getMessage());
-            return e.getErrno();
-        }
+        item = lookup(path);
 
         if (item != null) {
             openSetter.setFh(item);
@@ -276,13 +274,13 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
         return Errno.ENOSYS; // TODO Not implemented
     }
 
-    private Item lookup(String path) throws ErrnoException {
+    private Item lookup(String path) throws FuseException {
         try {
             return session.getItem(path);
         } catch (PathNotFoundException e) {
-            throw new ErrnoException("No item found at path '" + path + "'", e, Errno.ENOENT);
+            throw new FuseException("No item found at path '" + path + "'", e).initErrno(Errno.ENOENT);
         } catch (RepositoryException e) {
-            throw new ErrnoException("Failed looking up item at path '" + path + "'", e, Errno.EREMOTEIO);
+            throw new FuseException("Failed looking up item at path '" + path + "'", e).initErrno(Errno.EREMOTEIO);
         }
     }
 
