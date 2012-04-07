@@ -18,7 +18,7 @@
 package net.nicoulaj.jcrfs;
 
 import fuse.*;
-import org.apache.jackrabbit.rmi.repository.URLRemoteRepository;
+import org.apache.jackrabbit.commons.JcrUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,11 +64,9 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
         LOGGER.debug("Options: {}", argsParser.getOptions());
 
         try {
-            final Repository repository = new URLRemoteRepository(argsParser.getSource());
+            final Repository repository = JcrUtils.getRepository(argsParser.getSource());
             final Credentials credentials = new SimpleCredentials(argsParser.getOption(OPTION_USER), argsParser.getOption(OPTION_PASS).toCharArray());
             session = repository.login(credentials, argsParser.getOption(OPTION_WORKSPACE));
-        } catch (MalformedURLException e) {
-            LOGGER.error("Invalid JCR repository URL", e);
         } catch (LoginException e) {
             LOGGER.error("Login failed", e);
         } catch (RepositoryException e) {

@@ -85,6 +85,11 @@
             <version>${jackrabbit.version}</version>
         </dependency>
         <dependency>
+          <groupId>org.apache.jackrabbit</groupId>
+          <artifactId>jackrabbit-jcr2dav</artifactId>
+          <version>${jackrabbit.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
