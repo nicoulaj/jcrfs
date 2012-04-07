@@ -228,22 +228,39 @@ public class JcrFileSystem implements Filesystem3, LifecycleSupport {
             Property prop = (Property) fh;
             try {
                 if (!prop.isMultiple()) {
-                    InputStream in = null;
-                    in = prop.getBinary().getStream();
-                    ByteArrayOutputStream out = new ByteArrayOutputStream((int) prop.getBinary().getSize());
-                    byte[] tmp = new byte[(int) prop.getBinary().getSize()];
-                    while (true) {
+                    Binary bin = prop.getBinary();
+                    long offsetLocal = offset;
+
+                    long totalSize = (int)(bin.getSize() - offset);
+                    int size = (totalSize < Integer.MAX_VALUE) ?
+                        (int)totalSize : Integer.MAX_VALUE;
+
+                    if (size > buf.limit()) {
+                        size = buf.limit();
+                    }
+
+                    ByteArrayOutputStream out = new ByteArrayOutputStream(size);
+                    LOGGER.debug("total size = " + totalSize + ", size = " + size);
+                    while (size > 0) {
                         int r = 0;
+                        byte[] tmp = new byte[size];
                         try {
-                            r = in.read(tmp);
+                            r = bin.read(tmp, offsetLocal);
+                            LOGGER.debug("read byte: " + r + "@" + offsetLocal);
                         } catch (IOException e) {
                             LOGGER.error("Failed reading property value");
                             return Errno.EREMOTEIO;
                         }
                         if (r == -1) break;
+
+                        size -= r;
+                        offsetLocal += r;
                         out.write(tmp, 0, r);
                     }
-                    buf.put(out.toByteArray(), (int) offset, tmp.length);
+                    LOGGER.debug("read all bytes: " + out.size() + "@" + offset);
+
+                    buf.put(out.toByteArray());
+
                     return 0;
                 } else {
                     return Errno.ENOSYS; // TODO Not implemented
