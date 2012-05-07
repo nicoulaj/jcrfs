@@ -1,4 +1,4 @@
-jcrfs
+jcrfs [![Build Status](https://secure.travis-ci.org/nicoulaj/jcrfs.png)](http://travis-ci.org/nicoulaj/jcrfs)
 =====
 
 **A [filesystem in userspace](http://en.wikipedia.org/wiki/Filesystem_in_Userspace) for [Java Content Repositories](http://en.wikipedia.org/wiki/Content_repository_API_for_Java).**
