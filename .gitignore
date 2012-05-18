@@ -17,5 +17,5 @@ pom.xml.*
 release.properties
 
 # Local stuff
-test.sh
-test
+local/
+
