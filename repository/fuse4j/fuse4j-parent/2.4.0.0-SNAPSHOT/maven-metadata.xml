@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>fuse4j</groupId>
+  <artifactId>fuse4j-parent</artifactId>
+  <version>2.4.0.0-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20120518.112959</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20120518112959</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>2.4.0.0-20120518.112959-1</value>
+        <updated>20120518112959</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
