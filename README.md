@@ -10,15 +10,6 @@ Status
 
 **This software is alpha and is far from being fully functionnal. Do not use it on a production repository, it may cause data loss.**
 
-TODO list:
-
-* Complete implementation of the filesystem.
-* Better validation of mount options.
-* Handle other access methods than RMI.
-* Handle other implementations than Jackrabbit.
-* Handle users/groups/permissions mapping through a config file (ntfs-3G style).
-* Remove dependency on Jackrabbit ?
-* Unit/integration tests.
 
 Usage
 -----
