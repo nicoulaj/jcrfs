@@ -63,8 +63,6 @@
     <fuse4j.version>2.4.0.0-SNAPSHOT<!--FIXME--></fuse4j.version>
     <jcr-api.version>2.0</jcr-api.version>
     <jackrabbit.version>2.3.6</jackrabbit.version>
-    <slf4j.version>1.6.4</slf4j.version>
-    <logback.version>1.0.0</logback.version>
   </properties>
 
   <dependencies>
