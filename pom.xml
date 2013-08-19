@@ -23,7 +23,7 @@
   <parent>
     <groupId>net.ju-n</groupId>
     <artifactId>net-ju-n-parent</artifactId>
-    <version>23</version>
+    <version>26</version>
   </parent>
 
   <groupId>net.ju-n.jcrfs</groupId>
